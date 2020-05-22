@@ -1,8 +1,8 @@
+## Linear Regression with sklearn
+
 # -*- Python 3.7.6 -*-
 # coding UTF-8
 # See https://openclassrooms.com/fr/courses/4011851-initiez-vous-au-machine-learning/4121986-programmez-votre-premiere-regression-lineaire
-
-## Linear Regression with sklearn
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,8 @@ from sklearn import linear_model
 house_data = pd.read_csv('/Users/edouard/Documents/Code/MachineLearning/house.csv')
 
 #sample = np.random.randint(house_data.shape[0],size=house_data.shape[0])
+#exemple de re-sampling rapide, attention possibilité de doublons
+
 sample = np.arange(house_data.shape[0])
 np.random.shuffle(sample)
 
@@ -75,7 +77,7 @@ plt.show()
 Erreur = house_data_test['loyer'] - predict
 Erreur_quad = Erreur*Erreur
 
-Erreur_moy = np.mean(Erreur)
+Erreur_moy = abs(np.mean(Erreur))
 Erreur_moy_quad = np.mean(Erreur_quad)
 
 print('end')

@@ -39,6 +39,7 @@ m_score = regr_m.score(house_data_X_test, price_y_test)
 s_score = regr_s.score(house_data_X_test.drop(columns='arrondissement'), price_y_test)
 
 #Affichage des performances
+print('-----','1st study : linear regressions','-----')
 print('single feature lin reg accuracy = ', "{0:.0%}".format(s_score))
 print('multi features lin reg accuracy = ', "{0:.0%}".format(m_score))
 
@@ -47,20 +48,54 @@ print('multi features lin reg accuracy = ', "{0:.0%}".format(m_score))
 #plt.figure(2)
 #plt.plot(house_data_X_train['arrondissement'], price_y_train, 'bo', markersize=4)
 
-##2nd analysis
-pos = house_data['arrondissement'].unique() #liste des arrondissements
+##Visualisation des surfaces par arrondissement
+arr_list = house_data['arrondissement'].unique() #liste des arrondissements
+data_set = [] #vecteur pour affichage violin plot
 
-data_set = []
-
-fig, axs = plt.subplots()
-
-for i in pos:
+for i in arr_list: #remplissage data_set
     data = (house_data_X_train[house_data_X_train['arrondissement'] == i]['surface']).to_numpy()
     data_set.append(data)
 
+fig, axs = plt.subplots()
+axs.violinplot(data_set,showmeans=True, showextrema=False)
 
-axs.violinplot(data_set, pos, showmeans=True, showextrema=False)
+arr_list_str = list( map(str, arr_list) ) #Mise en forme
+arr_list_str.insert(0,'0') #ajout d'un '0' pour indexage xticklabels
+axs.set_xticklabels(arr_list_str)
+
 plt.show()
+
+##Segmentation par arrondissement puis single feature lin reg
+
+print('-----','2st study : segmentation','-----')
+regr_seg = linear_model.LinearRegression()
+
+for i in arr_list:
+    X_train = pd.DataFrame(house_data_X_train[house_data_X_train['arrondissement'] == i]['surface'])
+    y_train = pd.DataFrame(price_y_train[house_data_X_train['arrondissement'] == i])
+    
+    regr_seg.fit(X_train,y_train)
+
+    X_test = pd.DataFrame(house_data_X_test[house_data_X_test['arrondissement'] == i]['surface'])
+    y_test = pd.DataFrame(price_y_test[house_data_X_test['arrondissement'] == i])
+    seg_score = regr_seg.score(X_test, y_test)
+
+    print('Arrondissement :',i,'single feature lin reg accuracy = ', "{0:.0%}".format(seg_score))
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
 
 
 

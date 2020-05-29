@@ -63,14 +63,18 @@ arr_list_str = list( map(str, arr_list) ) #Mise en forme
 arr_list_str.insert(0,'0') #ajout d'un '0' pour indexage xticklabels
 axs.set_xticklabels(arr_list_str)
 
-plt.show()
+#plt.show()
 
 ##Segmentation par arrondissement puis single feature lin reg
 
 print('-----','2st study : segmentation','-----')
+
 regr_seg = linear_model.LinearRegression()
 
-for i in arr_list:
+fig2, axs2 = plt.subplots(nrows=1, ncols=5, figsize=(10, 2))
+pos = 0
+
+for i in arr_list: #segmentation par arrondissement
     X_train = pd.DataFrame(house_data_X_train[house_data_X_train['arrondissement'] == i]['surface'])
     y_train = pd.DataFrame(price_y_train[house_data_X_train['arrondissement'] == i])
     
@@ -82,21 +86,14 @@ for i in arr_list:
 
     print('Arrondissement :',i,'single feature lin reg accuracy = ', "{0:.0%}".format(seg_score))
 
-
-
-
-
-
-
-
-
-
+    axs2[pos].scatter(X_test,y_test) #affichage des valeurs de test
+    axs2[pos].plot([0,250], [regr_seg.intercept_[0],regr_seg.intercept_[0] + 250 * regr_seg.coef_[0][0]], linestyle='--', c='#000000') #affichage du modèle de prédiction
 
     
+    title = 'Arrondissement : '+ str(i) + ' eff. = ' + "{0:.0%}".format(seg_score)
+    axs2[pos].set_title(title, fontsize=10)
+    pos = pos+1 #position de la figure
 
 
-
-
-
-
+plt.show()
 print('end')

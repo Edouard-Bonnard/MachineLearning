@@ -90,17 +90,24 @@ for i in range(CV):
     y_train_val_fold.append(y_train[inf:sup])
 
 #Implementation du gridsearch
-clf2 = neighbors.KNeighborsClassifier()
+
+clf2_score = []
+K_acc = []
 
 for k in param_grid['n_neighbors']:
+    clf2 = neighbors.KNeighborsClassifier(n_neighbors=k)
     for fold in range(CV):
         clf2.fit(X_train_std_train_fold[fold],y_train_train_fold[fold])
-        clf2_score = clf2.score(X_train_std_val_fold[fold], y_train_val_fold[fold])
-        print('accuracy = ', "{0:.0%}".format(clf2_score))
+        sc = clf2.score(X_train_std_val_fold[fold], y_train_val_fold[fold])
+        clf2_score.append(sc)
+        print('accuracy = ', "{0:.0%}".format(sc))
         #stocker l'accuracy et moyenner
+    mean_sc = np.mean(clf2_score)
+    print('mean accuracy for K = ', k,' = ',"{0:.0%}".format(sc))
+    K_acc.append(mean_sc)
 
-
-
+best_K = np.where(K_acc == np.amax(K_acc))
+print('best K number is ', param_grid['n_neighbors'][best_K[0][0]])
 
 # Build of classifyer
 clf = model_selection.GridSearchCV(
@@ -109,7 +116,6 @@ clf = model_selection.GridSearchCV(
     cv=5,           # folds number
     scoring=score   # score to optimise
 )
-
 # Optimization on the train set
 clf.fit(X_train_std, y_train)
 

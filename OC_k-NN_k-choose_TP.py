@@ -3,9 +3,11 @@
 # -*- Python 3.8.2 -*-
 # coding UTF-8
 
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from math import *
 from sklearn import model_selection #for spliting dataset
 from sklearn import preprocessing #for centering and scaling
 from sklearn import neighbors, metrics #for choosing the right k
@@ -59,6 +61,46 @@ for feat_idx in range(X_train_std.shape[1]):
 # Crossed validation of k for k-NN
 param_grid = {'n_neighbors':[3, 5, 7, 9, 11, 13, 15]} #k values to be tested
 score = 'accuracy' #score to be optimised
+
+#Create folds 
+CV = 5 #folds numbers
+Len = floor(np.shape(X_train_std)[0] / CV) #length of a fold
+
+
+X_train_std_train_fold =  [] #X train folds
+X_train_std_val_fold = [] #X validation folds
+y_train_train_fold = [] #y train train folds
+y_train_val_fold = [] #y train val folds
+
+#Creation of train and validation folds
+for i in range(CV):
+    inf = Len*i # fold inferior val limit 
+    sup = Len*(i+1) #fold superior val limit
+
+    A = X_train_std[:inf]
+    B = X_train_std[sup:]
+    C = np.concatenate((A, B), axis=0)
+    X_train_std_train_fold.append(C) #train fold filling
+    X_train_std_val_fold.append(X_train_std[inf:sup])
+
+    D = y_train[:inf]
+    E = y_train[sup:]
+    F = np.concatenate((D,E),axis=0)
+    y_train_train_fold.append(F)
+    y_train_val_fold.append(y_train[inf:sup])
+
+#Implementation du gridsearch
+clf2 = neighbors.KNeighborsClassifier()
+
+for k in param_grid['n_neighbors']:
+    for fold in range(CV):
+        clf2.fit(X_train_std_train_fold[fold],y_train_train_fold[fold])
+        clf2_score = clf2.score(X_train_std_val_fold[fold], y_train_val_fold[fold])
+        print('accuracy = ', "{0:.0%}".format(clf2_score))
+        #stocker l'accuracy et moyenner
+
+
+
 
 # Build of classifyer
 clf = model_selection.GridSearchCV(

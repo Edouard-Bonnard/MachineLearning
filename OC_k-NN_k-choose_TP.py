@@ -1,4 +1,6 @@
 # Modification for recreating GridSearchCV in a function
+# Program 100% complete ; the new homemade GridSearchCV is working, however it returns better results
+# than the sklearn GridSearchCV function on test set
 # Choosing the right k in k-NN
 # -*- Python 3.8.2 -*-
 # coding UTF-8
@@ -66,7 +68,6 @@ score = 'accuracy' #score to be optimised
 CV = 5 #folds numbers
 Len = floor(np.shape(X_train_std)[0] / CV) #length of a fold
 
-
 X_train_std_train_fold =  [] #X train folds
 X_train_std_val_fold = [] #X validation folds
 y_train_train_fold = [] #y train train folds
@@ -106,8 +107,17 @@ for k in param_grid['n_neighbors']:
     print('mean accuracy for K = ', k,' = ',"{0:.0%}".format(sc))
     K_acc.append(mean_sc)
 
-best_K = np.where(K_acc == np.amax(K_acc))
-print('best K number is ', param_grid['n_neighbors'][best_K[0][0]])
+
+best_K_ind = np.where(K_acc == np.amax(K_acc)) #best K value index
+best_K = param_grid['n_neighbors'][best_K_ind[0][0]]
+
+
+print('best K number is ', best_K)
+
+clf2 = neighbors.KNeighborsClassifier(n_neighbors=int(best_K))
+clf2.fit(X_train_std, y_train)
+sc = clf2.score(X_train_std, y_train)
+print('accuracy on test set = ', "{0:.0%}".format(sc))
 
 # Build of classifyer
 clf = model_selection.GridSearchCV(
@@ -142,6 +152,7 @@ for mean, std, params in zip(
 # Comment : gridsearchCV automatically train the best k-NN on the whole train set
 y_pred = clf.predict(X_test_std)
 print("\nOn test set : {:.3f}".format(metrics.accuracy_score(y_test, y_pred)))
+print('Slight difference between two models due to the different split in dataset')
 
 
 
